@@ -1,0 +1,5 @@
+stallID,stallName,cuisineType,opening,maxCapacity,currentQueueLength
+STALL_01,Dapur Malay,Malay,1,1,14
+STALL_02,Golden Dragon,Chinese,1,10,5
+STALL_03,Western Grill,Western,0,15,0
+STALL_04,Taj Mahal,Indian,1,15,0
