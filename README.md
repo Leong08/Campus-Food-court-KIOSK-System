@@ -84,6 +84,41 @@ Nothing is visible to teammates on GitHub until `git push` is run — commits ar
    ```
 5. Merge the PR on GitHub once approved.
 
+## Avoiding `main.cpp` conflict hell — code structure rules
+
+There are two kinds of files in this repo, and they must be treated very differently.
+
+### 1. Your own module files — push freely, zero conflicts
+
+These belong to **one person only** (e.g. `stall_assignment.*`, `session_history.*`, and each member's own `.h`/`.cpp`). Nobody else touches them, so you can commit and push anytime with no risk.
+
+### 2. Shared files — everyone edits them, so **coordinate**
+
+`main.cpp`, `structures.h`, and `file_handler.*` are shared. This is where merge conflicts come from. Rules:
+
+- **Keep `main.cpp` thin.** Don't write your module's logic inside `main.cpp`. Put it in your own files and expose **one** entry function (e.g. `runStallModule()`, `runSessionHistory()`). `main.cpp` is just a menu that calls each:
+
+  ```cpp
+  #include "stall_assignment.h"
+  #include "session_history.h"
+  // ...
+  int main() {
+      // 1 -> runStallModule();
+      // 2 -> runSessionHistory();
+      // ...
+  }
+  ```
+
+  That way your only edit to `main.cpp` is 3 tiny lines (one include, one menu line, one case) — those almost never conflict.
+
+- **`structures.h` is append-only.** Add your struct at the bottom; don't rename or reformat existing ones. Use your **own** constants (e.g. `MAX_SESSION_HISTORY`) — don't reuse someone else's like `MAX_HISTORY`.
+
+- **Don't commit build files.** Never commit `kiosk.exe` or `.o` files — add them to `.gitignore`. They cause pointless conflicts and bloat the repo.
+
+- **One person owns `main.cpp` integration** so we're not all rewriting the menu.
+
+**TL;DR:** your own files = do whatever. Shared files (`main.cpp`, `structures.h`, `file_handler`) = keep your edits tiny and talk before big changes.
+
 ## Quick reference
 
 | Action | Command |
