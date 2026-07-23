@@ -21,7 +21,7 @@
 class CircularQueue {
 private:
     // ---- Circular queue internals ----
-    Stall queue[MAX_STALLS];   // Fixed-size circular array of stalls
+    Stall* queue[MAX_STALLS];   // Fixed-size circular array of stall pointers
     int front;                  // Index of the first element
     int rear;                   // Index of the last element
     int count;                  // Current number of stalls in queue
@@ -34,7 +34,7 @@ private:
     int assignPtr;
 
     // ---- Assignment history log ----
-    AssignmentRecord history[MAX_HISTORY];
+    AssignmentRecord history[MAX_STALL_HISTORY];
     int historyCount;
 
 public:
@@ -42,10 +42,10 @@ public:
     CircularQueue();
 
     // ---- Core circular queue operations ----
-    bool  enqueue(const Stall& stall);   // Add stall to rear   — O(1)
-    Stall dequeue();                      // Remove from front    — O(1)
-    Stall peek() const;                   // View front element   — O(1)
-    bool  isFull() const;                 // Check if queue full  — O(1)
+    bool   enqueue(Stall* stall);         // Add stall to rear   — O(1)
+    Stall* dequeue();                     // Remove from front    — O(1)
+    Stall* peek() const;                  // View front element   — O(1)
+    bool   isFull() const;                // Check if queue full  — O(1)
     bool  isEmpty() const;                // Check if queue empty — O(1)
     int   getSize() const;                // Get element count    — O(1)
 
@@ -65,5 +65,8 @@ public:
     void displayStatus() const;    // Show stall capacity overview   — O(n)
     void displayHistory() const;   // Show assignment history log    — O(n)
 };
+
+// ---- Module Entry Point ----
+void runStallModule();
 
 #endif // STALL_ASSIGNMENT_H

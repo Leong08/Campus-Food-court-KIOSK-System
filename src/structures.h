@@ -17,7 +17,7 @@ const int MAX_STUDENTS    = 50;
 const int MAX_STALLS      = 50;
 const int MAX_MENU_ITEMS  = 100;
 const int MAX_ORDERS      = 200;
-const int MAX_HISTORY     = 500;
+const int MAX_STALL_HISTORY = 500;
 
 // ---- Student record (students.csv) ----
 struct Student {
@@ -73,3 +73,14 @@ struct AssignmentRecord {
 };
 
 #endif // STRUCTURES_H
+
+// ---- Shared Global Arrays (Appended for cross-module integration) ----
+extern Student students[MAX_STUDENTS];
+extern Stall stallArray[MAX_STALLS];
+extern MenuItem menuItems[MAX_MENU_ITEMS];
+extern Order orders[MAX_ORDERS];
+
+extern int studentCount;
+extern int stallCount;
+extern int menuItemCount;
+extern int orderCount;

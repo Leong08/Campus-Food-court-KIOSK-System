@@ -48,9 +48,15 @@ int parseLine(const char* line, char fields[][256], int maxFields) {
     const char* pos = line;
 
     while (*pos && fieldCount < maxFields) {
-        // Find the next comma or end of string
+        // Find the next comma or end of string, respecting double quotes
         const char* comma = pos;
-        while (*comma && *comma != ',' && *comma != '\n' && *comma != '\r') {
+        bool inQuotes = false;
+        while (*comma && *comma != '\n' && *comma != '\r') {
+            if (*comma == '"') {
+                inQuotes = !inQuotes;
+            } else if (*comma == ',' && !inQuotes) {
+                break; // Found an unquoted comma
+            }
             comma++;
         }
 
