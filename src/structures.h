@@ -72,6 +72,16 @@ struct AssignmentRecord {
     long timestamp;
 };
 
+// ---- Session navigation step (for Task 3 stack history) ----
+struct SessionStep {
+    char stepType[20];        // one of the STEP_* labels in session_history.h
+    char studentID[20];       // who performed the step
+    char itemID[20];          // item involved, "" if none
+    int  quantity;            // qty at this step, 0 if n/a
+    long timeStamp;           // Unix epoch when step occurred
+    char stateSnapshot[100];  // short human-readable state description
+};
+
 #endif // STRUCTURES_H
 
 // ---- Shared Global Arrays (Appended for cross-module integration) ----

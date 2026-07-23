@@ -7,7 +7,7 @@
 #include <iostream>
 #include "structures.h"
 #include "stall_assignment.h"
-// #include "session_history.h"
+#include "session_history.h"
 
 using namespace std;
 
@@ -46,6 +46,9 @@ int main() {
         switch (choice) {
             case 2:
                 runStallModule();
+                break;
+            case 3:
+                runSessionHistory();
                 break;
             case 0:
                 running = false;
