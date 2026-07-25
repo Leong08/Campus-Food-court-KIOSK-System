@@ -1,9 +1,3 @@
-// ============================================================
-// main.cpp — Thin Shared Driver
-// Campus Food Court Self-Order Kiosk System (Part 2)
-// CT077-3-2-DSTR | Lab Work #2
-// ============================================================
-
 #include <iostream>
 #include "structures.h"
 #include "stall_assignment.h"
@@ -11,7 +5,7 @@
 
 using namespace std;
 
-// Define global arrays (extern in structures.h)
+// Define global arrays
 Student  students[MAX_STUDENTS];
 Stall    stallArray[MAX_STALLS];
 MenuItem menuItems[MAX_MENU_ITEMS];
