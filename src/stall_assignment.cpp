@@ -4,26 +4,6 @@
 // By: Sherwin A/L Jesudass (TP075823)
 // CT077-3-2-DSTR | Lab Work #2
 // ============================================================
-// This file implements a Circular Queue from scratch (no STL).
-//
-// WHY CIRCULAR QUEUE?
-// The stall assignment follows a round-robin pattern: orders
-// rotate through stalls 1 → 2 → 3 → 4 → 1 → 2 → ...
-// A circular queue naturally wraps around using modulo
-// arithmetic:  nextIndex = (current + 1) % count
-// This avoids resetting the pointer and ensures fair, balanced
-// distribution of orders across all stalls.
-//
-// CIRCULAR QUEUE DIAGRAM:
-//   ┌──────┬──────┬──────┬──────┐
-//   │ ST01 │ ST02 │ ST03 │ ST04 │  ← fixed-size array
-//   └──────┴──────┴──────┴──────┘
-//      ↑                    ↑
-//    front                 rear
-//           ↑
-//        assignPtr (rotates after each assignment)
-//
-// When assignPtr reaches the end, it wraps to index 0.
 // ============================================================
 
 #include "stall_assignment.h"
@@ -49,8 +29,7 @@ CircularQueue::CircularQueue() {
 // CORE CIRCULAR QUEUE OPERATIONS
 // ============================================================
 
-// Enqueue — Add a stall to the rear of the circular queue.
-// Time: O(1) | Space: O(1)
+// Add a stall to the rear
 bool CircularQueue::enqueue(Stall* stall) {
     if (isFull()) {
         cout << "  [ERROR] Circular Queue is full. Cannot add stall." << endl;
@@ -64,8 +43,7 @@ bool CircularQueue::enqueue(Stall* stall) {
     return true;
 }
 
-// Dequeue — Remove and return the stall at the front.
-// Time: O(1) | Space: O(1)
+// Remove stall at the front
 Stall* CircularQueue::dequeue() {
     if (isEmpty()) {
         cout << "  [ERROR] Circular Queue is empty. Cannot dequeue." << endl;
@@ -88,8 +66,7 @@ Stall* CircularQueue::dequeue() {
     return removed;
 }
 
-// Peek — View the stall at the front without removing it.
-// Time: O(1) | Space: O(1)
+// View front stall
 Stall* CircularQueue::peek() const {
     if (isEmpty()) {
         cout << "  [ERROR] Circular Queue is empty." << endl;
@@ -175,8 +152,7 @@ bool CircularQueue::assignOrder(Order& order) {
         // Set the order's assigned stall
         strcpy(order.stallID, stall->stallID);
 
-        // Symmetrical synchronization:
-        // maxCapacity-- and currentQueueLength++ must happen together
+        // Update capacity symmetrically
         stall->maxCapacity--;
         stall->currentQueueLength++;
 
@@ -194,7 +170,7 @@ bool CircularQueue::assignOrder(Order& order) {
         cout << "  Updated: Capacity=" << stall->maxCapacity
              << " | Queue Length=" << stall->currentQueueLength << endl;
 
-        // Advance pointer for the NEXT call (round-robin rotation)
+        // Advance pointer for round-robin
         assignPtr = (assignPtr + 1) % count;
 
         return true;
@@ -774,7 +750,7 @@ void createNewOrder() {
     newOrder.totalPrice = newOrder.quantity * menuItems[itemIdx].price;
 
     // ---- Financial sufficiency check ----
-    // (Dataset README: accBalance >= totalPrice before instantiating order)
+    // Check balance requirement
     if (students[studentIdx].accBalance < newOrder.totalPrice) {
         cout << "  [ERROR] Insufficient balance!" << endl;
         cout << "  Required: RM" << fixed << setprecision(2) << newOrder.totalPrice
@@ -881,7 +857,7 @@ void cancelOrder() {
     strcpy(orders[orderIdx].paymentStatus, "REFUNDED");
 
     // ---- Restore stall capacity ----
-    // (Dataset README: maxCapacity++ and currentQueueLength--)
+    // Restore stall capacity
     if (strlen(orders[orderIdx].stallID) > 0) {
         cout << "  Restoring capacity for stall "
              << orders[orderIdx].stallID << "..." << endl;
