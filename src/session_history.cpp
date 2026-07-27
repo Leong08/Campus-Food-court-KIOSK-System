@@ -60,6 +60,19 @@ bool SessionHistoryStack::peekCurrentState(SessionStep& out) const {
     return true;
 }
 
+// Modify the current re-visited step in place, so a wrong selection can be corrected
+bool SessionHistoryStack::modifyCurrentState(const char* newItem, int newQty, const char* newState) {
+    if (isEmpty()) {
+        cout << "  [INFO] No current step to modify." << endl;
+        return false;
+    }
+    if (newItem  != nullptr) strcpy(backStack[backTop].itemID, newItem);
+    if (newQty   >= 0)       backStack[backTop].quantity = newQty;
+    if (newState != nullptr) strcpy(backStack[backTop].stateSnapshot, newState);
+    backStack[backTop].timeStamp = (long)time(nullptr);
+    return true;
+}
+
 bool SessionHistoryStack::isEmpty() const {
     return backTop == -1;
 }
@@ -149,7 +162,21 @@ static const char* pickStepType(int n) {
     }
 }
 
-// Prompt for and record one navigation step
+// Item ID only applies to steps that act on a specific menu item
+static bool stepNeedsItem(const char* type) {
+    return strcmp(type, STEP_SEARCH_ITEM)  == 0 ||
+           strcmp(type, STEP_SELECT_ITEM)  == 0 ||
+           strcmp(type, STEP_UPDATE_QTY)   == 0 ||
+           strcmp(type, STEP_CANCEL_ORDER) == 0;
+}
+
+// Quantity only applies when the student is setting an item amount
+static bool stepNeedsQuantity(const char* type) {
+    return strcmp(type, STEP_SELECT_ITEM) == 0 ||
+           strcmp(type, STEP_UPDATE_QTY)  == 0;
+}
+
+// Prompt for and record one navigation step, asking only for fields the step uses
 static void promptAndRecord(SessionHistoryStack& hist) {
     cout << "\n  Step type:\n"
          << "    1.LOGIN 2.BROWSE_MENU 3.SEARCH_ITEM 4.SELECT_ITEM\n"
@@ -160,14 +187,21 @@ static void promptAndRecord(SessionHistoryStack& hist) {
 
     SessionStep s;
     strcpy(s.stepType, pickStepType(t));
+    s.itemID[0] = '\0';
+    s.quantity  = 0;
 
     cout << "  Student ID: ";
     cin >> setw(20) >> s.studentID;
-    cout << "  Item ID (- for none): ";
-    cin >> setw(20) >> s.itemID;
-    if (strcmp(s.itemID, "-") == 0) s.itemID[0] = '\0';
-    cout << "  Quantity: ";
-    if (!(cin >> s.quantity)) { cin.clear(); cin.ignore(1000, '\n'); s.quantity = 0; }
+
+    if (stepNeedsItem(s.stepType)) {
+        cout << "  Item ID: ";
+        cin >> setw(20) >> s.itemID;
+    }
+    if (stepNeedsQuantity(s.stepType)) {
+        cout << "  Quantity: ";
+        if (!(cin >> s.quantity)) { cin.clear(); cin.ignore(1000, '\n'); s.quantity = 0; }
+    }
+
     cin.ignore(1000, '\n');
     cout << "  State note: ";
     cin.getline(s.stateSnapshot, 100);
@@ -175,6 +209,73 @@ static void promptAndRecord(SessionHistoryStack& hist) {
 
     if (hist.recordStep(s))
         cout << "  Recorded: " << s.stepType << endl;
+}
+
+// Re-visit the current step and correct its item, quantity and note (error recovery)
+static void promptAndModify(SessionHistoryStack& hist) {
+    SessionStep cur;
+    if (!hist.peekCurrentState(cur)) return;
+
+    cout << "\n  Modifying current step: " << cur.stepType
+         << " | item=" << (strlen(cur.itemID) > 0 ? cur.itemID : "-")
+         << " | qty=" << cur.quantity
+         << " | " << cur.stateSnapshot << endl;
+
+    char newItem[20];
+    cout << "  New Item ID (- to keep): ";
+    cin >> setw(20) >> newItem;
+
+    int newQty;
+    cout << "  New Quantity (-1 to keep): ";
+    if (!(cin >> newQty)) { cin.clear(); newQty = -1; }
+    cin.ignore(1000, '\n');
+
+    char newState[100];
+    cout << "  New state note (blank to keep): ";
+    cin.getline(newState, 100);
+
+    const char* itemArg  = (strcmp(newItem, "-") == 0) ? nullptr : newItem;
+    const char* stateArg = (newState[0] == '\0')       ? nullptr : newState;
+
+    if (hist.modifyCurrentState(itemArg, newQty, stateArg))
+        cout << "  Current state corrected." << endl;
+}
+
+// Build one step inline for the scripted demo
+static SessionStep makeStep(const char* type, const char* sid, const char* item, int qty, const char* snap) {
+    SessionStep s;
+    strcpy(s.stepType, type);
+    strcpy(s.studentID, sid);
+    strcpy(s.itemID, item);
+    s.quantity  = qty;
+    s.timeStamp = (long)time(nullptr);
+    strcpy(s.stateSnapshot, snap);
+    return s;
+}
+
+// Auto-record a realistic kiosk journey so steps are captured in sequence, as during real navigation
+static void runSampleSession(SessionHistoryStack& hist) {
+    hist.clear();
+    const char* sid = "TP075570";
+    SessionStep flow[] = {
+        makeStep(STEP_LOGIN,       sid, "",         0, "Scanned student ID at kiosk"),
+        makeStep(STEP_BROWSE_MENU, sid, "",         0, "Browsing Malay stall menu"),
+        makeStep(STEP_SELECT_ITEM, sid, "ITEM_M01", 1, "Selected Nasi Lemak Ayam"),
+        makeStep(STEP_UPDATE_QTY,  sid, "ITEM_M01", 2, "Changed quantity to 2"),
+        makeStep(STEP_SELECT_ITEM, sid, "ITEM_M02", 1, "Added Teh Tarik"),
+        makeStep(STEP_VIEW_CART,   sid, "",         0, "Reviewing cart"),
+        makeStep(STEP_PLACE_ORDER, sid, "",         0, "Order placed")
+    };
+    int n = sizeof(flow) / sizeof(flow[0]);
+
+    cout << "\n  Simulating a kiosk session (steps auto-recorded in sequence):\n";
+    for (int i = 0; i < n; i++) {
+        if (hist.recordStep(flow[i]))
+            cout << "  [auto] " << left << setw(14) << flow[i].stepType
+                 << flow[i].stateSnapshot << endl;
+    }
+    hist.displayNavigationTrace();
+    cout << "  Tip: now try Back / Forward to retrace this session." << endl;
 }
 
 // Interactive menu driver invoked from main.cpp
@@ -194,6 +295,8 @@ void runSessionHistory() {
         cout << "    5. Display full history\n";
         cout << "    6. Display navigation trace\n";
         cout << "    7. Clear history\n";
+        cout << "    8. Run sample kiosk session (auto-record)\n";
+        cout << "    9. Modify current state (fix a mistake)\n";
         cout << "    0. Exit\n";
         cout << "    Enter choice: ";
 
@@ -223,8 +326,10 @@ void runSessionHistory() {
             case 5: hist.displayHistory(); break;
             case 6: hist.displayNavigationTrace(); break;
             case 7: hist.clear(); cout << "  History cleared." << endl; break;
+            case 8: runSampleSession(hist); break;
+            case 9: promptAndModify(hist); break;
             case 0: running = false; break;
-            default: cout << "\n  [ERROR] Invalid choice. Please enter 0-7." << endl;
+            default: cout << "\n  [ERROR] Invalid choice. Please enter 0-9." << endl;
         }
     }
 }

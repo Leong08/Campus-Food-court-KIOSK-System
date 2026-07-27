@@ -30,6 +30,7 @@ public:
     bool goBack(SessionStep& out);                 // step back one action (browser back)
     bool goForward(SessionStep& out);              // re-visit an undone action (browser forward)
     bool peekCurrentState(SessionStep& out) const; // read the current active step
+    bool modifyCurrentState(const char* newItem, int newQty, const char* newState); // edit the re-visited step in place (error recovery)
 
     bool isEmpty() const;
     bool isFull() const;
