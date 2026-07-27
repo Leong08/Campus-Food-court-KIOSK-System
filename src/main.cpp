@@ -7,6 +7,7 @@
 #include <iostream>
 #include "structures.h"
 #include "stall_assignment.h"
+#include "menu_bst.h"
 // #include "session_history.h"
 
 using namespace std;
@@ -31,7 +32,7 @@ int main() {
         cout << "1. Task 1: Module 1\n";
         cout << "2. Task 2: Stall Assignment Module\n";
         cout << "3. Task 3: Session History Stack\n";
-        cout << "4. Task 4: Module 4\n";
+        cout << "4. Task 4: Menu Item Search (BST)\n";
         cout << "0. Exit\n";
         cout << "Enter choice: ";
         
@@ -46,6 +47,9 @@ int main() {
         switch (choice) {
             case 2:
                 runStallModule();
+                break;
+            case 4:
+                runMenuSearchModule();
                 break;
             case 0:
                 running = false;
