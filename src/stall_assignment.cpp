@@ -4,6 +4,9 @@
 // By: Sherwin A/L Jesudass (TP075823)
 // CT077-3-2-DSTR | Lab Work #2
 // ============================================================
+// I'm using a circular queue here so we can do round-robin 
+// for the stall assignments. It just wraps around automatically 
+// using modulo so I don't have to manually reset the pointer.
 // ============================================================
 
 #include "stall_assignment.h"
