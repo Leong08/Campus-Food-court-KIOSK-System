@@ -42,7 +42,7 @@ int main() {
         switch (choice) {
             case 1: runOrderQueueModule(); break;
             case 2: runStallModule();      break;
-            case 3: runHistoryModule();    break;
+            case 3: runSessionHistory();   break;
             case 4: runMenuSearchModule(); break;
             case 0: running = false;       break;
             default: cout << "Invalid choice.\n"; break;

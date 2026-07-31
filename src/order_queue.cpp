@@ -6,7 +6,6 @@
 
 using namespace std;
 
-
 OrderQueue::OrderQueue() {
     front = nullptr;
     rear = nullptr;
@@ -14,9 +13,7 @@ OrderQueue::OrderQueue() {
     count = 0;
 }
 
-
 OrderQueue::~OrderQueue() {
-
     OrderNode* current = front;
     while (current != nullptr) {
         OrderNode* nextNode = current->next;
@@ -40,9 +37,7 @@ int OrderQueue::getQueueSize() const {
     return count;
 }
 
-// ---------------------------------------------------------
-// Enquene
-// ---------------------------------------------------------
+// Enqueue: add an order to the rear of the queue (FIFO)
 void OrderQueue::enqueue(Order* newOrder) {
     OrderNode* newNode = new OrderNode;
     newNode->data = newOrder;
@@ -57,9 +52,7 @@ void OrderQueue::enqueue(Order* newOrder) {
     count++;
 }
 
-// ---------------------------------------------------------
-// Dequeue
-// ---------------------------------------------------------
+// Dequeue: remove the front order and move it to processed history
 Order* OrderQueue::dequeue() {
     if (isEmpty()) {
         return nullptr;
@@ -69,13 +62,11 @@ Order* OrderQueue::dequeue() {
     Order* processedOrder = temp->data;
 
     front = front->next;
-    
 
     if (front == nullptr) {
         rear = nullptr;
     }
     count--;
-
 
     temp->next = historyHead;
     historyHead = temp;
@@ -88,9 +79,7 @@ Order* OrderQueue::peek() const {
     return front->data;
 }
 
-// ---------------------------------------------------------
-// UI and Display
-// ---------------------------------------------------------
+// Display all pending orders currently in the queue
 void OrderQueue::displayPendingOrders() const {
     if (isEmpty()) {
         cout << "\n  [INFO] The order queue is currently empty." << endl;
@@ -100,22 +89,22 @@ void OrderQueue::displayPendingOrders() const {
     cout << "\n  ========================================================" << endl;
     cout << "                    PENDING ORDER QUEUE                   " << endl;
     cout << "  ========================================================" << endl;
-    cout << "  " << left 
-         << setw(5)  << "Pos" 
-         << setw(15) << "Order ID" 
-         << setw(12) << "Student ID" 
-         << setw(10) << "Item ID" 
+    cout << "  " << left
+         << setw(5)  << "Pos"
+         << setw(15) << "Order ID"
+         << setw(12) << "Student ID"
+         << setw(10) << "Item ID"
          << setw(5)  << "Qty" << endl;
     cout << "  --------------------------------------------------------" << endl;
 
     OrderNode* current = front;
     int position = 1;
     while (current != nullptr) {
-        cout << "  " << left 
-             << setw(5)  << position 
-             << setw(15) << current->data->orderID 
-             << setw(12) << current->data->studentID 
-             << setw(10) << current->data->itemID 
+        cout << "  " << left
+             << setw(5)  << position
+             << setw(15) << current->data->orderID
+             << setw(12) << current->data->studentID
+             << setw(10) << current->data->itemID
              << setw(5)  << current->data->quantity << endl;
         current = current->next;
         position++;
@@ -124,6 +113,7 @@ void OrderQueue::displayPendingOrders() const {
     cout << "  Total Pending: " << count << endl;
 }
 
+// Display orders that have already been processed (dequeued)
 void OrderQueue::displayCompletedOrders() const {
     if (historyHead == nullptr) {
         cout << "\n  [INFO] No completed orders in history." << endl;
@@ -132,21 +122,19 @@ void OrderQueue::displayCompletedOrders() const {
     cout << "\n  ========================================================" << endl;
     cout << "                 RECENTLY PROCESSED ORDERS                " << endl;
     cout << "  ========================================================" << endl;
-    
+
     OrderNode* current = historyHead;
     while (current != nullptr) {
-        cout << "  - Order ID: " << current->data->orderID 
+        cout << "  - Order ID: " << current->data->orderID
              << " | Processed Status: " << current->data->orderStatus << endl;
         current = current->next;
     }
     cout << "  ========================================================" << endl;
 }
 
-// ============================================================
-// TUI
-// ============================================================
 OrderQueue globalOrderQueue;
 
+// Interactive menu driver invoked from main.cpp
 void runOrderQueueModule() {
     int choice;
     bool running = true;
@@ -172,13 +160,11 @@ void runOrderQueueModule() {
 
         switch (choice) {
             case 1: {
-
                 if (orderCount == 0) {
                     orderCount = loadOrders("datasets/orders.csv", orders, MAX_ORDERS);
                 }
                 int added = 0;
                 for (int i = 0; i < orderCount; i++) {
-
                     if (strcmp(orders[i].orderStatus, "PENDING") == 0) {
                         globalOrderQueue.enqueue(&orders[i]);
                         added++;
@@ -195,8 +181,6 @@ void runOrderQueueModule() {
                 if (nextOrder != nullptr) {
                     cout << "\n  [SYSTEM] Order " << nextOrder->orderID << " has been dequeued." << endl;
                     cout << "  >> Routing to Stall Assignment Module..." << endl;
-                    
-
                     strcpy(nextOrder->orderStatus, "PREPARING");
                 } else {
                     cout << "\n  [ERROR] Queue is empty. No orders to process!" << endl;

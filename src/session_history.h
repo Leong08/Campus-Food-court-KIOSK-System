@@ -1,36 +1,47 @@
 #ifndef SESSION_HISTORY_H
 #define SESSION_HISTORY_H
 
-struct SessionStep {
-    char actionName[50];
-    char details[100];
-};
+#include "structures.h"
 
-struct HistoryNode {
-    SessionStep step;
-    HistoryNode* next;
-};
+const int MAX_SESSION_HISTORY = 100;
 
+// Canonical session step labels, all modules must use these
+const char* const STEP_LOGIN        = "LOGIN";
+const char* const STEP_BROWSE_MENU  = "BROWSE_MENU";
+const char* const STEP_SEARCH_ITEM  = "SEARCH_ITEM";
+const char* const STEP_SELECT_ITEM  = "SELECT_ITEM";
+const char* const STEP_UPDATE_QTY   = "UPDATE_QTY";
+const char* const STEP_VIEW_CART    = "VIEW_CART";
+const char* const STEP_PLACE_ORDER  = "PLACE_ORDER";
+const char* const STEP_CANCEL_ORDER = "CANCEL_ORDER";
+
+// Browser-style navigation history built from two stacks (back + forward)
 class SessionHistoryStack {
 private:
-    HistoryNode* topNode;
-    int count;
+    SessionStep backStack[MAX_SESSION_HISTORY];  
+    SessionStep forwardStack[MAX_SESSION_HISTORY]; 
+    int backTop;
+    int forwardTop;
 
 public:
     SessionHistoryStack();
-    ~SessionHistoryStack();
 
-    void push(const char* action, const char* details);
-    bool pop(SessionStep& poppedStep);
-    bool peek(SessionStep& currentStep) const;
+    bool recordStep(const SessionStep& step);      // record a new action, clears forward history
+    bool goBack(SessionStep& out);                 // step back one action 
+    bool goForward(SessionStep& out);              // re-visit an undone action 
+    bool peekCurrentState(SessionStep& out) const; // read the current active step
+    bool modifyCurrentState(const char* newItem, int newQty, const char* newState); // edit the re-visited step in place 
+
     bool isEmpty() const;
-    int getSize() const;
-    void clear();
+    bool isFull() const;
+    int  getSize() const;
 
-    void displayCurrentState() const;
-    void displayHistoryTrace() const;
+    void displayHistory() const;         
+    void displayNavigationTrace() const; 
+    void clear();
 };
 
-void runHistoryModule();
+// Entry point called from main.cpp menu
+void runSessionHistory();
 
-#endif // SESSION_HISTORY_H
+#endif

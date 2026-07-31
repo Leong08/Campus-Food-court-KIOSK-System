@@ -39,7 +39,7 @@ public:
     int getSize() const;
 };
 
-// ---- Module Entry Point ----
+// Module Entry Point
 void runMenuSearchModule();
 
-#endif // MENU_BST_H
+#endif 

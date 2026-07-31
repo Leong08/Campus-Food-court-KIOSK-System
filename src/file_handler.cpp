@@ -1,13 +1,3 @@
-// ============================================================
-// file_handler.cpp — CSV File Parsing & Loading
-// Campus Food Court Self-Order Kiosk System (Part 2)
-// CT077-3-2-DSTR | Lab Work #2
-// ============================================================
-// Parses CSV files into struct arrays with validation.
-// Malformed lines are logged and skipped to prevent crashes.
-// No STL containers used — only raw arrays and C-strings.
-// ============================================================
-
 #include "file_handler.h"
 #include <iostream>
 #include <fstream>
@@ -16,10 +6,7 @@
 
 using namespace std;
 
-// ============================================================
 // CSV PARSING UTILITIES
-// ============================================================
-
 // Trim leading/trailing whitespace, tabs, newlines, carriage returns.
 void trimWhitespace(char* str) {
     // Trim leading whitespace
@@ -79,10 +66,7 @@ int parseLine(const char* line, char fields[][256], int maxFields) {
     return fieldCount;
 }
 
-// ============================================================
 // LOAD STALLS (stalls.csv)
-// Format: stallID,stallName,cuisineType,opening,maxCapacity,currentQueueLength
-// ============================================================
 int loadStalls(const char* filename, Stall stalls[], int maxSize) {
     ifstream file(filename);
     if (!file.is_open()) {
@@ -133,11 +117,7 @@ int loadStalls(const char* filename, Stall stalls[], int maxSize) {
     return count;
 }
 
-// ============================================================
 // LOAD ORDERS (orders.csv)
-// Format: orderID,timeStamp,studentID,stallID,itemID,quantity,
-//         totalPrice,paymentStatus,priorityFlag,pickupTime,order_status
-// ============================================================
 int loadOrders(const char* filename, Order orders[], int maxSize) {
     ifstream file(filename);
     if (!file.is_open()) {
@@ -199,10 +179,7 @@ int loadOrders(const char* filename, Order orders[], int maxSize) {
     return count;
 }
 
-// ============================================================
 // LOAD STUDENTS (students.csv)
-// Format: studentID,fullName,contactNumber,accBalance,status
-// ============================================================
 int loadStudents(const char* filename, Student students[], int maxSize) {
     ifstream file(filename);
     if (!file.is_open()) {
@@ -249,10 +226,7 @@ int loadStudents(const char* filename, Student students[], int maxSize) {
     return count;
 }
 
-// ============================================================
 // LOAD MENU ITEMS (menu_items.csv)
-// Format: itemID,itemName,category,availability,prepTime,stallID,price
-// ============================================================
 int loadMenuItems(const char* filename, MenuItem items[], int maxSize) {
     ifstream file(filename);
     if (!file.is_open()) {

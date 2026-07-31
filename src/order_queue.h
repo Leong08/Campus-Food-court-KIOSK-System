@@ -35,4 +35,4 @@ public:
 
 void runOrderQueueModule();
 
-#endif // ORDER_QUEUE_H
+#endif

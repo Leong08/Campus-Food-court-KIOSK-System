@@ -1,31 +1,3 @@
-// ============================================================
-// stall_assignment.cpp — Circular Queue Implementation
-// Task 2: Stall Assignment Module
-// By: Sherwin A/L Jesudass (TP075823)
-// CT077-3-2-DSTR | Lab Work #2
-// ============================================================
-// This file implements a Circular Queue from scratch (no STL).
-//
-// WHY CIRCULAR QUEUE?
-// The stall assignment follows a round-robin pattern: orders
-// rotate through stalls 1 → 2 → 3 → 4 → 1 → 2 → ...
-// A circular queue naturally wraps around using modulo
-// arithmetic:  nextIndex = (current + 1) % count
-// This avoids resetting the pointer and ensures fair, balanced
-// distribution of orders across all stalls.
-//
-// CIRCULAR QUEUE DIAGRAM:
-//   ┌──────┬──────┬──────┬──────┐
-//   │ ST01 │ ST02 │ ST03 │ ST04 │  ← fixed-size array
-//   └──────┴──────┴──────┴──────┘
-//      ↑                    ↑
-//    front                 rear
-//           ↑
-//        assignPtr (rotates after each assignment)
-//
-// When assignPtr reaches the end, it wraps to index 0.
-// ============================================================
-
 #include "stall_assignment.h"
 #include <iostream>
 #include <iomanip>
@@ -36,7 +8,7 @@
 
 using namespace std;
 
-// ---- Constructor ----
+// Constructor 
 CircularQueue::CircularQueue() {
     front        = 0;
     rear         = -1;
@@ -45,12 +17,7 @@ CircularQueue::CircularQueue() {
     historyCount = 0;
 }
 
-// ============================================================
-// CORE CIRCULAR QUEUE OPERATIONS
-// ============================================================
-
 // Enqueue — Add a stall to the rear of the circular queue.
-// Time: O(1) | Space: O(1)
 bool CircularQueue::enqueue(Stall* stall) {
     if (isFull()) {
         cout << "  [ERROR] Circular Queue is full. Cannot add stall." << endl;
@@ -65,7 +32,6 @@ bool CircularQueue::enqueue(Stall* stall) {
 }
 
 // Dequeue — Remove and return the stall at the front.
-// Time: O(1) | Space: O(1)
 Stall* CircularQueue::dequeue() {
     if (isEmpty()) {
         cout << "  [ERROR] Circular Queue is empty. Cannot dequeue." << endl;
@@ -89,7 +55,6 @@ Stall* CircularQueue::dequeue() {
 }
 
 // Peek — View the stall at the front without removing it.
-// Time: O(1) | Space: O(1)
 Stall* CircularQueue::peek() const {
     if (isEmpty()) {
         cout << "  [ERROR] Circular Queue is empty." << endl;
@@ -113,25 +78,7 @@ int CircularQueue::getSize() const {
     return count;
 }
 
-// ============================================================
 // ROUND-ROBIN STALL ASSIGNMENT
-// ============================================================
-
-// assignOrder — The core function of this module.
-//
-// Uses a rotating pointer (assignPtr) to distribute orders
-// fairly across all stalls. The pointer advances after each
-// assignment, wrapping back to the start (circular behaviour).
-//
-// LOGIC:
-//   1. Start from the current assignPtr position
-//   2. Check if the stall is OPEN and has CAPACITY
-//   3. If yes → assign order, update capacity, advance pointer
-//   4. If no  → skip to next stall, repeat
-//   5. If all stalls checked → system overload error
-//
-// Time: O(n) worst case (all stalls full, must check every one)
-// Space: O(1)
 bool CircularQueue::assignOrder(Order& order) {
     if (isEmpty()) {
         cout << "  [ERROR] No stalls in queue. Load stalls first." << endl;
@@ -152,7 +99,7 @@ bool CircularQueue::assignOrder(Order& order) {
         cout << "  -> Checking " << stall->stallName
              << " (" << stall->stallID << "): ";
 
-        // --- Skip closed stalls ---
+        // Skip closed stalls 
         if (!stall->opening) {
             cout << "CLOSED - Skipping" << endl;
             assignPtr = (assignPtr + 1) % count;
@@ -160,7 +107,7 @@ bool CircularQueue::assignOrder(Order& order) {
             continue;
         }
 
-        // --- Skip full stalls (capacity boundary check) ---
+        // Skip full stalls (capacity boundary check) 
         if (stall->maxCapacity <= 0) {
             cout << "FULL (0 capacity) - Skipping" << endl;
             assignPtr = (assignPtr + 1) % count;
@@ -168,7 +115,7 @@ bool CircularQueue::assignOrder(Order& order) {
             continue;
         }
 
-        // --- Stall is available — assign the order ---
+        // Stall is available — assign the order 
         cout << "AVAILABLE (capacity: " << stall->maxCapacity
              << ") - ASSIGNED!" << endl;
 
@@ -208,13 +155,8 @@ bool CircularQueue::assignOrder(Order& order) {
     return false;
 }
 
-// ============================================================
-// STALL MANAGEMENT
-// ============================================================
-
 // Find a stall's array index by its ID.
 // Returns the actual queue array index, or -1 if not found.
-// Time: O(n)
 int CircularQueue::findStall(const char* stallID) const {
     for (int i = 0; i < count; i++) {
         int idx = (front + i) % MAX_STALLS;
@@ -226,9 +168,6 @@ int CircularQueue::findStall(const char* stallID) const {
 }
 
 // Update a stall's capacity by a delta value.
-// delta = -1 when an order is assigned (decrease capacity)
-// delta = +1 when an order is cancelled (restore capacity)
-// Time: O(n)
 bool CircularQueue::updateCapacity(const char* stallID, int delta) {
     int idx = findStall(stallID);
     if (idx == -1) {
@@ -250,20 +189,11 @@ bool CircularQueue::updateCapacity(const char* stallID, int delta) {
 }
 
 // Cancel an order's stall assignment — restore one capacity slot.
-// This implements the "Cancellation and Recovery Wipes" rule
-// from the dataset dictionary.
-// Time: O(n)
 bool CircularQueue::cancelOrderAssignment(const char* stallID) {
     return updateCapacity(stallID, 1);  // Restore +1 slot
 }
 
-// ============================================================
-// DISPLAY OPERATIONS
-// ============================================================
-
 // Display all stalls currently in the circular queue.
-// Shows the internal queue state (front, rear, assignPtr).
-// Time: O(n)
 void CircularQueue::displayAll() const {
     if (isEmpty()) {
         cout << "\n  [INFO] Circular Queue is empty. No stalls loaded." << endl;
@@ -313,7 +243,6 @@ void CircularQueue::displayAll() const {
 }
 
 // Display detailed stall status with visual capacity bars.
-// Time: O(n)
 void CircularQueue::displayStatus() const {
     if (isEmpty()) {
         cout << "\n  [INFO] No stalls loaded." << endl;
@@ -361,8 +290,6 @@ void CircularQueue::displayStatus() const {
 }
 
 // Display the assignment history log.
-// Shows every order-to-stall assignment made during this session.
-// Time: O(n)
 void CircularQueue::displayHistory() const {
     if (historyCount == 0) {
         cout << "\n  [INFO] No assignments recorded yet." << endl;
@@ -392,10 +319,7 @@ void CircularQueue::displayHistory() const {
     cout << "  ====================================================" << endl;
 }
 
-
-// ============================================================
 // MODULE ENTRY POINT & MENU FUNCTIONS
-// ============================================================
 CircularQueue stallQueue;
 bool dataLoaded = false;
 void displayBanner();
@@ -407,9 +331,7 @@ void assignAllPending();
 void createNewOrder();
 void cancelOrder();
 
-// ============================================================
 // MAIN FUNCTION
-// ============================================================
 void runStallModule() {
 displayBanner();
 
@@ -465,9 +387,7 @@ displayBanner();
     
 }
 
-// ============================================================
 // DISPLAY BANNER
-// ============================================================
 void displayBanner() {
     cout << endl;
     cout << "  ====================================================" << endl;
@@ -483,9 +403,7 @@ void displayBanner() {
     cout << endl;
 }
 
-// ============================================================
 // LOAD ALL DATA FROM CSV FILES
-// ============================================================
 void loadAllData() {
     // Prevent duplicate loading
     if (dataLoaded) {
@@ -534,9 +452,7 @@ void loadAllData() {
     cout << "\n  All data loaded successfully!" << endl;
 }
 
-// ============================================================
 // DISPLAY ALL ORDERS
-// ============================================================
 void displayOrders() {
     if (orderCount == 0) {
         cout << "\n  [INFO] No orders loaded." << endl;
@@ -573,9 +489,7 @@ void displayOrders() {
     cout << "  Total orders: " << orderCount << endl;
 }
 
-// ============================================================
 // DISPLAY PENDING ORDERS ONLY
-// ============================================================
 void displayPendingOrders() {
     cout << "\n  --- Pending Orders ---" << endl;
     bool found = false;
@@ -595,9 +509,7 @@ void displayPendingOrders() {
     }
 }
 
-// ============================================================
 // ASSIGN NEXT PENDING ORDER (one at a time)
-// ============================================================
 void assignNextPending() {
     if (!dataLoaded) {
         cout << "\n  [ERROR] Load data first (Option 1)." << endl;
@@ -622,9 +534,7 @@ void assignNextPending() {
     cout << "\n  [INFO] No pending orders found." << endl;
 }
 
-// ============================================================
 // ASSIGN ALL PENDING ORDERS (batch)
-// ============================================================
 void assignAllPending() {
     if (!dataLoaded) {
         cout << "\n  [ERROR] Load data first (Option 1)." << endl;
@@ -656,9 +566,7 @@ void assignAllPending() {
          << " | Failed: " << failed << endl;
 }
 
-// ============================================================
 // CREATE A NEW ORDER (for demo purposes)
-// ============================================================
 void createNewOrder() {
     if (!dataLoaded) {
         cout << "\n  [ERROR] Load data first (Option 1)." << endl;
@@ -673,7 +581,7 @@ void createNewOrder() {
     Order newOrder;
     memset(&newOrder, 0, sizeof(Order));
 
-    // ---- Auto-generate Order ID ----
+    // Auto-generate Order ID 
     // Find the highest existing order number and increment
     int maxOrderNum = 0;
     for (int i = 0; i < orderCount; i++) {
@@ -683,10 +591,10 @@ void createNewOrder() {
     }
     sprintf(newOrder.orderID, "ORD_%05d", maxOrderNum + 1);
 
-    // ---- Set timestamp ----
+    // Set timestamp
     newOrder.timeStamp = (long)time(NULL);
 
-    // ---- Show available students ----
+    // Show available students 
     cout << "\n  --- Active Students ---" << endl;
     for (int i = 0; i < studentCount; i++) {
         if (strcmp(students[i].status, "Active") == 0) {
@@ -697,7 +605,7 @@ void createNewOrder() {
         }
     }
 
-    // ---- Select student ----
+    // Select student
     cout << "\n  Enter Student ID: ";
     cin >> setw(20) >> newOrder.studentID;
 
@@ -719,7 +627,7 @@ void createNewOrder() {
         return;
     }
 
-    // ---- Show available menu items ----
+    // Show available menu items
     cout << "\n  --- Available Menu Items ---" << endl;
     cout << "  " << left
          << setw(12) << "Item ID"
@@ -740,7 +648,7 @@ void createNewOrder() {
         }
     }
 
-    // ---- Select menu item ----
+    // Select menu item 
     cout << "\n  Enter Item ID: ";
     cin >> setw(20) >> newOrder.itemID;
 
@@ -761,7 +669,7 @@ void createNewOrder() {
         return;
     }
 
-    // ---- Enter quantity ----
+    // Enter quantity 
     cout << "  Enter quantity: ";
     cin >> newOrder.quantity;
 
@@ -770,10 +678,10 @@ void createNewOrder() {
         return;
     }
 
-    // ---- Calculate total price ----
+    // Calculate total price
     newOrder.totalPrice = newOrder.quantity * menuItems[itemIdx].price;
 
-    // ---- Financial sufficiency check ----
+    // Financial sufficiency check 
     // (Dataset README: accBalance >= totalPrice before instantiating order)
     if (students[studentIdx].accBalance < newOrder.totalPrice) {
         cout << "  [ERROR] Insufficient balance!" << endl;
@@ -789,7 +697,7 @@ void createNewOrder() {
         return;
     }
 
-    // ---- Deduct balance and create order ----
+    // Deduct balance and create order
     students[studentIdx].accBalance -= newOrder.totalPrice;
     strcpy(newOrder.paymentStatus, "PAID");
     newOrder.priorityFlag = 0;
@@ -807,7 +715,7 @@ void createNewOrder() {
     cout << "  Total: RM" << fixed << setprecision(2) << newOrder.totalPrice << endl;
     cout << "  Remaining balance: RM" << students[studentIdx].accBalance << endl;
 
-    // ---- Auto-assign to stall via Circular Queue ----
+    // Auto-assign to stall via Circular Queue 
     cout << "\n  Assigning to stall via Circular Queue round-robin..." << endl;
     if (stallQueue.assignOrder(orders[orderCount - 1])) {
         strcpy(orders[orderCount - 1].orderStatus, "PREPARING");
@@ -817,9 +725,7 @@ void createNewOrder() {
     }
 }
 
-// ============================================================
 // CANCEL ORDER (with refund and capacity restoration)
-// ============================================================
 void cancelOrder() {
     if (!dataLoaded) {
         cout << "\n  [ERROR] Load data first (Option 1)." << endl;
@@ -847,7 +753,7 @@ void cancelOrder() {
         return;
     }
 
-    // ---- Select order to cancel ----
+    // Select order to cancel
     cout << "\n  Enter Order ID to cancel: ";
     char cancelID[20];
     cin >> setw(20) >> cancelID;
@@ -875,12 +781,12 @@ void cancelOrder() {
         return;
     }
 
-    // ---- Cancel the order ----
+    // Cancel the order
     cout << "\n  Cancelling order " << cancelID << "..." << endl;
     strcpy(orders[orderIdx].orderStatus, "CANCELLED");
     strcpy(orders[orderIdx].paymentStatus, "REFUNDED");
 
-    // ---- Restore stall capacity ----
+    // Restore stall capacity
     // (Dataset README: maxCapacity++ and currentQueueLength--)
     if (strlen(orders[orderIdx].stallID) > 0) {
         cout << "  Restoring capacity for stall "
@@ -889,7 +795,7 @@ void cancelOrder() {
         cout << "  Stall capacity restored (+1 slot)." << endl;
     }
 
-    // ---- Refund student ----
+    // Refund student 
     for (int i = 0; i < studentCount; i++) {
         if (strcmp(students[i].studentID, orders[orderIdx].studentID) == 0) {
             students[i].accBalance += orders[orderIdx].totalPrice;
