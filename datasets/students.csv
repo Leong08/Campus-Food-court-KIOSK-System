@@ -1,0 +1,7 @@
+studentID,fullName,contactNumber,accBalance,status
+TP076118,Leong Yuan Kang,012-3456789,150.50,Active
+TP075570,Tsai Chin Xian,019-8765432,12.00,Active
+TP012345,Sherwin Tan,011-2233445,0.00,Active
+TP099999,Bad Student,017-9998887,500.00,Suspended
+TP088888,Graduated Senior,013-1112223,45.00,Graduated
+TP073456,Ali Bin Ahmad,018-7654321,85.70,Active
