@@ -1,0 +1,8 @@
+*.exe
+kiosk_system
+kiosk_system.exe
+*.o
+*.obj
+.vscode/
+.idea/
+.DS_Store

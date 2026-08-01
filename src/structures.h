@@ -42,6 +42,7 @@ struct Order {
     char   studentID[20];
     char   stallID[20];
     char   itemID[20];
+    char   itemName[100];
     int    quantity;
     double totalPrice;
     char   paymentStatus[20];
@@ -59,12 +60,8 @@ struct AssignmentRecord {
 
 // Session navigation step (Task 3 stack history)
 struct SessionStep {
-    char stepType[20];        // one of the STEP_* labels in session_history.h
-    char studentID[20];       // who performed the step
-    char itemID[20];          // item involved, "" if none
-    int  quantity;            // qty at this step, 0 if n/a
-    long timeStamp;           // Unix epoch when step occurred
-    char stateSnapshot[100];  // short human-readable state description
+    char actionName[50];    
+    char details[100];      
 };
 
 extern Student students[MAX_STUDENTS];
