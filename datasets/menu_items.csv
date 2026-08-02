@@ -9,3 +9,5 @@ ITEM_I02,Mango Lassi,Beverage,0,5,STALL_04,6.00
 ITEM_D03,Bird nest,Dessert,1,25,STALL_02,25.90
 ITEM_D01,Toufufa,Dessert,1,15,STALL_02,9.00
 ITEM_D02,Green bean,Dessert,1,15,STALL_02,11.00
+ITEM_D04,Barley,Dessert,1,30,STALL_02,13.00
+ITEM_W02,Bolognese Pasta,Food,0,30,STALL_03,22.22

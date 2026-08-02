@@ -71,6 +71,28 @@ static int readInt(const char* prompt) {
     }
 }
 
+static int readIntInRange(const char* prompt, int minValue, int maxValue) {
+    while (true) {
+        int value = readInt(prompt);
+        if (value >= minValue && value <= maxValue) {
+            return value;
+        }
+        cout << "  [ERROR] Please enter a number from "
+             << minValue << " to " << maxValue << "." << endl;
+    }
+}
+
+static int readMinInt(const char* prompt, int minValue) {
+    while (true) {
+        int value = readInt(prompt);
+        if (value >= minValue) {
+            return value;
+        }
+        cout << "  [ERROR] Please enter a number at least "
+             << minValue << "." << endl;
+    }
+}
+
 static double readDouble(const char* prompt) {
     double value;
     while (true) {
@@ -84,22 +106,59 @@ static double readDouble(const char* prompt) {
     }
 }
 
-static bool selectCategory(char* category) {
-    int choice = readInt("\n  Enter category (Food = 1, Beverage = 2, Dessert = 3): ");
+static double readPriceTwoDecimals(const char* prompt) {
+    char input[50];
+
+    while (true) {
+        bool validFormat = true;
+        bool hasDigit = false;
+        bool hasDecimalPoint = false;
+        int decimalPlaces = 0;
+
+        readCString(prompt, input, 50);
+
+        for (int i = 0; input[i] != '\0'; i++) {
+            if (input[i] >= '0' && input[i] <= '9') {
+                hasDigit = true;
+                if (hasDecimalPoint) {
+                    decimalPlaces++;
+                }
+            } else if (input[i] == '.' && !hasDecimalPoint) {
+                hasDecimalPoint = true;
+            } else {
+                validFormat = false;
+                break;
+            }
+        }
+
+        if (!validFormat || !hasDigit || decimalPlaces > 2) {
+            cout << "  [ERROR] Price must have maximum two decimal places, e.g. 8.50." << endl;
+            continue;
+        }
+
+        double value = atof(input);
+        if (value <= 0.0) {
+            cout << "  [ERROR] Price must be greater than 0.00." << endl;
+            continue;
+        }
+
+        return value;
+    }
+}
+
+
+static void selectCategory(char* category) {
+    int choice = readIntInRange("\n  Enter category (Food = 1, Beverage = 2, Dessert = 3): ", 1, 3);
     switch (choice) {
         case 1:
             strcpy(category, "Food");
-            return true;
+            break;
         case 2:
             strcpy(category, "Beverage");
-            return true;
+            break;
         case 3:
             strcpy(category, "Dessert");
-            return true;
-        default:
-            cout << "  [ERROR] Invalid category choice. Please enter 1-3." << endl;
-            category[0] = '\0';
-            return false;
+            break;
     }
 }
 
@@ -283,7 +342,7 @@ void MenuBST::searchByName(const char* keyword) const {
     }
     int found = 0; displayMenuHeader();
     searchName(root, keyword, found);
-    cout << "  ===================================================================================" << endl;
+    cout << "  ===================================================================================================" << endl;
 }
 
 void MenuBST::searchCategory(MenuNode* node, const char* category, int& found) const {
@@ -368,7 +427,7 @@ static void searchMenuByName() {
 static void searchMenuByCategory() {
     if (!ensureMenuTreeReady()) return;
     char category[20];
-    if (!selectCategory(category)) return;
+    selectCategory(category);
     playTransition("Parsing category nodes in BST...");
     menuTree.searchByCategory(category);
 }
@@ -387,7 +446,7 @@ static bool inputMenuItem(MenuItem& item, bool editingExisting) {
     }
 
     readCString("  Item name: ", item.itemName, 100);
-    if (!selectCategory(item.category)) return false;
+    selectCategory(item.category);
     if (strlen(item.itemName) == 0) {
         cout << "  [ERROR] Item name cannot be blank." << endl;
         return false;
@@ -396,17 +455,9 @@ static bool inputMenuItem(MenuItem& item, bool editingExisting) {
         cout << "  [ERROR] Commas are not allowed in item names saved to CSV." << endl;
         return false;
     }
-    int stock = readInt("  Availability (1 = In Stock, 0 = Out of Stock): ");
-    if (stock != 0 && stock != 1) {
-        cout << "  [ERROR] Availability must be 1 or 0." << endl;
-        return false;
-    }
+    int stock = readIntInRange("  Availability (1 = In Stock, 0 = Out of Stock): ", 0, 1);
     item.availability = (stock == 1);
-    item.prepTime = readInt("  Prep time in minutes: ");
-    if (item.prepTime < 1) {
-        cout << "  [ERROR] Prep time must be at least 1 minute." << endl;
-        return false;
-    }
+    item.prepTime = readMinInt("  Prep time in minutes: ", 1);
     readCString("  Stall ID: ", item.stallID, 20);
     if (strlen(item.stallID) == 0 || containsComma(item.stallID)) {
         cout << "  [ERROR] Stall ID cannot be blank or contain commas." << endl;
@@ -416,11 +467,7 @@ static bool inputMenuItem(MenuItem& item, bool editingExisting) {
         cout << "  [ERROR] Stall ID does not exist in the shared stall records." << endl;
         return false;
     }
-    item.price = readDouble("  Price (RM): ");
-    if (item.price <= 0) {
-        cout << "  [ERROR] Price must be greater than 0.00." << endl;
-        return false;
-    }
+    item.price = readPriceTwoDecimals("  Price (RM): ");
     return true;
 }
 
