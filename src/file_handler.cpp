@@ -102,7 +102,6 @@ int loadStalls(const char* filename, Stall stalls[], int maxSize) {
     return count;
 }
 
-// 支持含有 itemName 的 12 列 CSV 格式解析
 int loadOrders(const char* filename, Order orders[], int maxSize) {
     ifstream file(filename);
     if (!file.is_open()) {
@@ -122,7 +121,6 @@ int loadOrders(const char* filename, Order orders[], int maxSize) {
         char fields[15][256];
         int fieldCount = parseLine(line, fields, 15);
 
-        // 验证 12 列字段
         if (fieldCount != 12) {
             cout << "  [WARNING] Line " << lineNum
                  << ": Malformed order (expected 12 fields, got "
@@ -136,10 +134,8 @@ int loadOrders(const char* filename, Order orders[], int maxSize) {
         strcpy(orders[count].stallID, fields[3]);
         strcpy(orders[count].itemID, fields[4]);
         
-        // 绑定第 6 列的 itemName
         strcpy(orders[count].itemName, fields[5]);
 
-        // 后续数据整体后移 1 位
         orders[count].quantity    = atoi(fields[6]);
         orders[count].totalPrice  = atof(fields[7]);
         strcpy(orders[count].paymentStatus, fields[8]);
