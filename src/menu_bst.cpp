@@ -40,8 +40,7 @@ static void playTransition(const char* message) {
 
 static void pauseScreen() {
     cout << "\n  Press [Enter] to return to the menu...";
-    cin.ignore(); 
-    cin.get();    
+    cin.get();
 }
 
 static MenuBST menuTree;
