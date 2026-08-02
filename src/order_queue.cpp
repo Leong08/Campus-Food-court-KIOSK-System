@@ -5,7 +5,6 @@
 #include <cstring>
 #include <ctime>
 
-// 跨平台高兼容休眠底层
 #ifdef _WIN32
 #include <windows.h>  
 #else
@@ -14,7 +13,6 @@
 
 using namespace std;
 
-// 毫秒级原生延时
 static void sleepMs(int ms) {
 #ifdef _WIN32
     Sleep(ms);        
@@ -23,14 +21,12 @@ static void sleepMs(int ms) {
 #endif
 }
 
-// 终端无污染高速清屏
 static void clearScreen() {
     for (int i = 0; i < 45; i++) {
         cout << "\n";
     }
 }
 
-// 进度条平滑过渡动画
 static void playTransition(const char* message) {
     cout << "\n  " << message << "\n  [";
     for (int i = 0; i < 15; i++) {
@@ -41,7 +37,6 @@ static void playTransition(const char* message) {
     sleepMs(150); 
 }
 
-// 舒适的按键继续机制
 static void pauseScreen() {
     cout << "\n  Press [Enter] to return to the menu...";
     cin.ignore(); 
@@ -195,7 +190,6 @@ OrderQueue globalOrderQueue;
 void runOrderQueueModule() {
     static bool autoLoaded = false;
     
-    // 【首次进入数据对齐】
     clearScreen();
     if (!autoLoaded) {
         playTransition("Initializing Self-Order Kiosk Queue & Syncing Datasets...");
@@ -259,14 +253,12 @@ void runOrderQueueModule() {
                     break;
                 }
                 
-                // 确保学生与菜单数据库已经被调入内存
                 if (studentCount == 0) studentCount = loadStudents("datasets/students.csv", students, MAX_STUDENTS);
                 if (menuItemCount == 0) menuItemCount = loadMenuItems("datasets/menu_items.csv", menuItems, MAX_MENU_ITEMS);
 
                 Order newOrder;
                 memset(&newOrder, 0, sizeof(Order));
 
-                // 自动生成订单号 ID
                 int maxOrderNum = 0;
                 for (int i = 0; i < orderCount; i++) {
                     int num = atoi(orders[i].orderID + 4);
@@ -279,7 +271,6 @@ void runOrderQueueModule() {
                 cout << "  Enter Student ID (e.g. TP076118): ";
                 cin >> setw(20) >> newOrder.studentID;
 
-                // 👈 核心安全校验 1：验证学号是否存在于数据库中 (Edge Case Defence)
                 int studentIdx = -1;
                 for (int i = 0; i < studentCount; i++) {
                     if (strcmp(students[i].studentID, newOrder.studentID) == 0) {
@@ -292,18 +283,16 @@ void runOrderQueueModule() {
                     cout << "\n  [ERROR] Student ID not registered in database! Transaction cancelled." << endl;
                     sleepMs(2000);
                     clearScreen();
-                    break; // 拦截，直接跳出退回菜单
+                    break;
                 }
 
-                // 👈 核心安全校验 2：验证学生账户是否为激活状态 (Active)
                 if (strcmp(students[studentIdx].status, "Active") != 0) {
                     cout << "\n  [ERROR] Student account status is [" << students[studentIdx].status << "]. Transaction rejected!" << endl;
                     sleepMs(2000);
                     clearScreen();
-                    break; // 拦截，直接跳出
+                    break;
                 }
 
-                // 打印点餐选择清单 (动态展示)
                 cout << "\n  ------ SELECT ITEM FROM KIOSK MENU ------" << endl;
                 for (int i = 0; i < menuItemCount; i++) {
                     cout << "    " << left << setw(3) << (i + 1) << ". " 
@@ -343,17 +332,15 @@ void runOrderQueueModule() {
 
                 newOrder.totalPrice = newOrder.quantity * unitPrice;
 
-                // 👈 核心安全校验 3：检查数字钱包余额是否足够扣除 (Financial Check)
                 if (students[studentIdx].accBalance < newOrder.totalPrice) {
                     cout << "\n  [ERROR] Insufficient wallet balance! Transaction cancelled." << endl;
                     cout << "  Required  : RM" << fixed << setprecision(2) << newOrder.totalPrice << endl;
                     cout << "  Available : RM" << students[studentIdx].accBalance << endl;
                     sleepMs(2500);
                     clearScreen();
-                    break; // 拦截，直接跳出
+                    break;
                 }
 
-                // 👈 自动扣款：扣除学生电子钱包余额 (Balance Deduction)
                 students[studentIdx].accBalance -= newOrder.totalPrice;
 
                 strcpy(newOrder.paymentStatus, "PAID");

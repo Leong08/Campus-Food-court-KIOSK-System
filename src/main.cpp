@@ -13,7 +13,7 @@
 
 using namespace std;
 
-// 全局基础数据实例化
+
 Student students[MAX_STUDENTS];
 Stall stallArray[MAX_STALLS];
 MenuItem menuItems[MAX_MENU_ITEMS];
@@ -24,7 +24,6 @@ int stallCount = 0;
 int menuItemCount = 0;
 int orderCount = 0;
 
-// 原生延时
 static void sleepMs(int ms) {
 #ifdef _WIN32
     Sleep(ms);
@@ -33,12 +32,10 @@ static void sleepMs(int ms) {
 #endif
 }
 
-// 高级清屏
 static void clearScreen() {
     for (int i = 0; i < 45; i++) cout << "\n";
 }
 
-// 进度条动画
 static void playTransition(const char* message) {
     cout << "\n  " << message << "\n  [";
     for (int i = 0; i < 15; i++) {
@@ -50,7 +47,6 @@ static void playTransition(const char* message) {
 }
 
 int main() {
-    // 【开机动画】
     clearScreen();
     playTransition("Booting APU Smart Kiosk OS & Securing Environment Link...");
     clearScreen();
