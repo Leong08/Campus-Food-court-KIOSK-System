@@ -360,7 +360,7 @@ void MenuBST::searchByCategory(const char* category) const {
     }
     int found = 0; displayMenuHeader();
     searchCategory(root, category, found);
-    cout << "  ===================================================================================" << endl;
+    cout << "  ===================================================================================================" << endl;
 }
 
 bool MenuBST::isEmpty() const { return root == nullptr; }
