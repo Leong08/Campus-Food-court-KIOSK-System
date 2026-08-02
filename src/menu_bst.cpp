@@ -196,6 +196,29 @@ static bool containsIgnoreCase(const char* text, const char* keyword) {
 
 static bool containsComma(const char* text) { return strchr(text, ',') != nullptr; }
 
+static void readValidItemID(char* itemID) {
+    while (true) {
+        readCString("\n  Item ID: ", itemID, 20);
+
+        if (strlen(itemID) == 0) {
+            cout << "  [ERROR] Item ID cannot be blank." << endl;
+            continue;
+        }
+
+        if (strncmp(itemID, "ITEM_", 5) != 0) {
+            cout << "  [ERROR] Item ID must start with ITEM_ (e.g. ITEM_W02)." << endl;
+            continue;
+        }
+
+        if (menuTree.searchByID(itemID) != nullptr) {
+            cout << "  [ERROR] Duplicate Item ID. BST keys must be unique." << endl;
+            continue;
+        }
+
+        return;
+    }
+}
+
 static int findMenuItemIndex(const char* itemID) {
     for (int i = 0; i < menuItemCount; i++) {
         if (strcmp(menuItems[i].itemID, itemID) == 0) return i;
@@ -435,15 +458,7 @@ static void searchMenuByCategory() {
 
 static bool inputMenuItem(MenuItem& item, bool editingExisting) {
     if (!editingExisting) {
-        readCString("\n  Item ID: ", item.itemID, 20);
-        if (strlen(item.itemID) == 0) {
-            cout << "  [ERROR] Item ID cannot be blank." << endl;
-            return false;
-        }
-        if (menuTree.searchByID(item.itemID) != nullptr) {
-            cout << "  [ERROR] Duplicate Item ID. BST keys must be unique." << endl;
-            return false;
-        }
+        readValidItemID(item.itemID);
     }
 
     readCString("  Item name: ", item.itemName, 100);
