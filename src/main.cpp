@@ -92,7 +92,7 @@ int main() {
                 break;
             case 3:
                 clearScreen();
-                runHistoryModule();
+                runSessionHistory();
                 clearScreen();
                 break;
             case 4:
