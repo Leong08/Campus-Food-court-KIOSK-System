@@ -276,7 +276,9 @@ MenuItem* MenuBST::searchByID(MenuNode* node, const char* itemID) const {
     if (cmp < 0) return searchByID(node->left, itemID);
     return searchByID(node->right, itemID);
 }
-MenuItem* MenuBST::searchByID(const char* itemID) const { return searchByID(root, itemID); }
+MenuItem* MenuBST::searchByID(const char* itemID) const { 
+    return searchByID(root, itemID); 
+}
 
 MenuNode* MenuBST::findMin(MenuNode* node) const {
     while (node != nullptr && node->left != nullptr) node = node->left;
